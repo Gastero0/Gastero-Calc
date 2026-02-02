@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<title>Gastero Calc - Deep Navy Edition</title>
+<style>
+@font-face {
+    font-family: 'Minecraft';
+    src: url('https://example.com/Minecraft.ttf') format('truetype');
+}
+
+@keyframes gradientBG {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+body {
+    background: radial-gradient(circle at center, #0a1025 0%, #050814 60%, #02040a 100%);
+    background-size: 200% 200%;
+    animation: gradientBG 15s ease infinite;
+    color: #eee;
+    font-family: 'Minecraft', monospace;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    overflow: hidden;
+}
+
+.main-ui {
+    display: grid;
+    grid-template-columns: 520px 300px;
+    gap: 20px;
+    transform: scale(1.35);
+    /* Ciemniejszy granat z lekkim prześwitem */
+    background: rgba(10, 15, 35, 0.95); 
+    padding: 25px;
+    border: 3px solid #1a2a4a;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.9), 10px 10px 0px #050814;
+}
+
+/* LEWY PANEL */
+.calc-box {
+    background: #0d142b;
+    border: 2px solid #1e2e5a;
+    padding: 20px;
+    box-shadow: inset 0 0 15px rgba(0,0,0,0.5), 6px 6px 0px #050814;
+}
+
+h2 {
+    color: #00d4ff;
+    margin: 0 0 20px 0;
+    font-size: 28px;
+    text-transform: uppercase;
+    border-bottom: 2px solid #00d4ff;
+    display: inline-block;
+    text-shadow: 2px 2px 0px #000, 0 0 15px rgba(0, 212, 255, 0.4);
+}
+
+.field { margin-bottom: 12px; }
+.field label {
+    display: block;
+    color: #7a8ebf;
+    font-size: 14px;
+    margin-bottom: 4px;
+    text-shadow: 1px 1px 0px #000;
+}
+
+input {
+    width: 100%;
+    box-sizing: border-box;
+    background: #050814;
+    border: 2px solid #1e2e5a;
+    color: #ffffff;
+    padding: 10px;
+    font-family: 'Minecraft', monospace;
+    font-size: 20px;
+    outline: none;
+    box-shadow: inset 3px 3px 10px rgba(0,0,0,0.8);
+    transition: border-color 0.2s;
+}
+
+input:focus {
+    border-color: #00d4ff;
+}
+
+/* WYNIK */
+.res-area {
+    margin-top: 15px;
+    background: #02040a;
+    border: 2px dashed #4a5a7a;
+    padding: 15px;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+#wynikContent .val { font-size: 42px; margin-bottom: 5px; }
+
+#wynikContent .sub-container {
+    border-top: 1px solid #1e2e5a;
+    padding-top: 8px;
+    margin-top: 5px;
+}
+
+#wynikContent .pln-label {
+    color: #7a8ebf;
+    font-size: 16px;
+    text-transform: uppercase;
+}
+
+/* PRAWY PANEL */
+.right-bar { display: flex; flex-direction: column; gap: 15px; height: 100%; }
+
+.cmd-box {
+    background: #0d142b;
+    border: 2px solid #39ff14;
+    padding: 12px;
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.5), 5px 5px 0px #050814;
+}
+
+.cmd-out {
+    background: #050814;
+    color: #39ff14;
+    padding: 10px;
+    font-size: 15px;
+    margin: 8px 0;
+    border: 2px solid #1e5a1e;
+    min-height: 20px;
+}
+
+.btn-copy {
+    width: 100%;
+    background: #39ff14;
+    color: #050814;
+    border: none;
+    padding: 12px;
+    font-family: 'Minecraft', monospace;
+    font-weight: bold;
+    font-size: 18px;
+    cursor: pointer;
+    box-shadow: 0 4px 0 #28b80e;
+    transition: all 0.1s;
+    position: relative;
+    top: 0;
+}
+
+.btn-copy:active {
+    top: 4px;
+    box-shadow: 0 0 0 #28b80e;
+}
+
+.sniper-config {
+    border: 2px solid #ff4444;
+    padding: 12px;
+    background: #1a0a0a;
+    box-shadow: 5px 5px 0px #050814;
+}
+
+.sniper-config h4 { color: #ff4444; margin: 0 0 8px 0; font-size: 12px; text-transform: uppercase; }
+.sniper-config input { color: #ff4444; border-color: #4a1a1a; font-size: 18px; }
+
+.kurs-config {
+    border: 2px solid #bc13fe;
+    padding: 12px;
+    background: #140d2b;
+    text-align: center;
+    box-shadow: 5px 5px 0px #050814;
+}
+
+.kurs-config input { color: #bc13fe; border-color: #2e1e5a; font-size: 18px; }
+.gray-info { color: #5a6a8a; font-size: 11px; margin-top: 5px; display: block; }
+
+.author-tag {
+    text-align: right;
+    color: #2a3a5a;
+    font-size: 16px;
+    text-transform: uppercase;
+    margin-top: auto;
+    padding-top: 20px;
+    letter-spacing: 3px;
+    text-shadow: 2px 2px 0px #000;
+}
+
+.rel { position: relative; }
+#sniperBtn {
+    display: none;
+    position: absolute;
+    right: 5px; top: 5px; bottom: 5px;
+    background: #ff4444; color: #fff; border: none; padding: 0 10px;
+    font-family: 'Minecraft', monospace; cursor: pointer;
+}
+
+.clear-btn {
+    background: none; border: 1px solid #2a3a5a; color: #4a5a7a;
+    width: 100%; margin-top: 10px; padding: 5px;
+    cursor: pointer; font-family: 'Minecraft', monospace;
+}
+
+.clear-btn:hover { color: #00d4ff; border-color: #00d4ff; }
+</style>
+</head>
+<body>
+
+<div class="main-ui">
+    <div class="calc-box">
+        <h2>OBLICZENIA</h2>
+        
+        <div class="field">
+            <label>Ilosc</label>
+            <input type="text" id="ilosc" placeholder="np. 1" oninput="liveOblicz()">
+        </div>
+
+        <div class="field">
+            <label>Kupno (szt)</label>
+            <input type="text" id="kupno" placeholder="np. 100k" oninput="liveOblicz()">
+        </div>
+
+        <div class="field">
+            <label>Sprzedaz (szt)</label>
+            <div class="rel">
+                <input type="text" id="sprzedaz" placeholder="np. 150k" oninput="checkSniper(); liveOblicz()">
+                <button id="sniperBtn" onclick="applySniper()">-7$</button>
+            </div>
+        </div>
+
+        <div class="res-area" id="wynikArea">
+            <div id="wynikContent" style="color: #2a3a5a; font-size: 20px;">Zysk...</div>
+        </div>
+        
+        <button class="clear-btn" onclick="resetForm()">WYCZYSC</button>
+    </div>
+
+    <div class="right-bar">
+        <div class="cmd-box">
+            <label style="color: #39ff14; font-size: 12px;">KOMENDA</label>
+            <div class="cmd-out" id="commandOutput">/wystaw 1 ...</div>
+            <button class="btn-copy" id="copyBtn" onclick="copyCommand()">KOPIUJ</button>
+        </div>
+
+        <div class="sniper-config">
+            <h4>Kwota do odjecia:</h4>
+            <input type="text" id="sniperValue" value="7" oninput="updateSniperLabel()">
+        </div>
+
+        <div class="kurs-config">
+            <input type="text" id="kursPLN" value="6000" oninput="liveOblicz()">
+            <span class="gray-info">$ = 1.00 zl</span>
+        </div>
+
+        <div class="author-tag">BY GASTERO</div>
+    </div>
+</div>
+
+<script>
+function updateSniperLabel() {
+    let val = document.getElementById('sniperValue').value;
+    document.getElementById('sniperBtn').innerText = "-" + (val || "0") + "$";
+}
+
+function convertShortcuts(val) {
+    if (!val) return 0;
+    let clean = val.toString().toLowerCase().replace(/,/g, '').replace('$','').trim();
+    if (clean.endsWith('mln')) return parseFloat(clean.replace('mln', '')) * 1000000;
+    if (clean.endsWith('k')) return parseFloat(clean.replace('k', '')) * 1000;
+    return parseFloat(clean) || 0;
+}
+
+function checkSniper() {
+    let val = document.getElementById('sprzedaz').value.toLowerCase().trim();
+    let btn = document.getElementById('sniperBtn');
+    let isRound = val.endsWith('k') || val.endsWith('mln') || (val.length > 0 && val.endsWith('0'));
+    btn.style.display = isRound ? "block" : "none";
+}
+
+function applySniper() {
+    let currentVal = convertShortcuts(document.getElementById('sprzedaz').value);
+    let minus = convertShortcuts(document.getElementById('sniperValue').value);
+    if (currentVal > minus) {
+        document.getElementById('sprzedaz').value = currentVal - minus;
+        document.getElementById('sniperBtn').style.display = "none";
+        liveOblicz();
+    }
+}
+
+function formatValue(value) {
+    let prefix = value < 0 ? "-" : "";
+    return prefix + Math.abs(Math.floor(value)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + '$';
+}
+
+function liveOblicz() {
+    let rawCena = document.getElementById('sprzedaz').value;
+    let przeliczonaCena = convertShortcuts(rawCena);
+    document.getElementById('commandOutput').innerText = "/wystaw 1 " + (rawCena === "" ? "..." : przeliczonaCena);
+
+    let valIlosc = document.getElementById('ilosc').value;
+    let valKupno = document.getElementById('kupno').value;
+    let valSprzedaz = document.getElementById('sprzedaz').value;
+
+    let area = document.getElementById('wynikArea');
+    let content = document.getElementById('wynikContent');
+
+    if(!valIlosc || !valKupno || !valSprzedaz) {
+        area.style.borderColor = "#4a5a7a";
+        area.style.boxShadow = "none";
+        return;
+    }
+
+    let ilosc = convertShortcuts(valIlosc);
+    let kupno = convertShortcuts(valKupno);
+    let sprzedaz = convertShortcuts(valSprzedaz);
+    let kurs = convertShortcuts(document.getElementById('kursPLN').value);
+
+    let zyskFinalny = (ilosc * sprzedaz * 0.98) - (ilosc * kupno);
+    let zyskZl = zyskFinalny / (kurs || 6000);
+    
+    let mainColor, borderColor, borderGlow;
+
+    if (zyskFinalny > 0) {
+        mainColor = "#39ff14"; 
+        borderColor = "#39ff14";
+        borderGlow = "rgba(57,255,20,0.2)";
+    } else if (zyskFinalny < 0) {
+        mainColor = "#ff4444"; 
+        borderColor = "#ff4444";
+        borderGlow = "rgba(255,68,68,0.2)";
+    } else {
+        mainColor = "#ffcc00"; 
+        borderColor = "#ffaa00";
+        borderGlow = "rgba(255,170,0,0.2)";
+    }
+
+    area.style.borderColor = borderColor;
+    area.style.boxShadow = `inset 0 0 25px ${borderGlow}`;
+
+    content.innerHTML = `
+        <div class="val" style="color: ${mainColor}; text-shadow: 3px 3px 0px #000">${formatValue(zyskFinalny)}</div>
+        <div class="sub-container">
+            <span class="pln-label">ZYSK PLN: </span>
+            <span class="pln-val" style="color: ${mainColor}">${zyskZl.toFixed(2)} zl</span>
+        </div>
+    `;
+}
+
+function copyCommand() {
+    navigator.clipboard.writeText(document.getElementById('commandOutput').innerText);
+}
+
+function resetForm() {
+    document.getElementById('ilosc').value = '';
+    document.getElementById('kupno').value = '';
+    document.getElementById('sprzedaz').value = '';
+    document.getElementById('sniperBtn').style.display = "none";
+    document.getElementById('commandOutput').innerText = "/wystaw 1 ...";
+    
+    let area = document.getElementById('wynikArea');
+    area.style.borderColor = "#4a5a7a";
+    area.style.boxShadow = "none";
+    document.getElementById('wynikContent').innerHTML = '<div style="color: #2a3a5a; font-size: 20px;">Zysk...</div>';
+}
+</script>
+</body>
+</html>
